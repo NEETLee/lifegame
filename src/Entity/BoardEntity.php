@@ -31,10 +31,6 @@ class BoardEntity
     private $step = 0;
 
     /**
-     * @var float
-     */
-    private $speed;
-    /**
      * @var \App\Entity\BoardEntity
      */
     private static $instances;
@@ -57,7 +53,7 @@ class BoardEntity
         if (!isset(self::$instances)) {
             self::$instances = new static();
         }
-        self::$instances->width = $width;
+        self::$instances->width  = $width;
         self::$instances->height = $height;
         self::$instances->createWorld($seed);
 
@@ -99,6 +95,7 @@ class BoardEntity
         return $this->step;
     }
 
+
     /**
      * 把棋盘生成为字符串输出.
      *
@@ -119,8 +116,8 @@ class BoardEntity
      */
     private function createWorld(string $seed = '')
     {
-        $centreX = (int) $this->width / 2;
-        $centreY = (int) $this->height / 2;
+        $centreX = (int)$this->width / 2;
+        $centreY = (int)$this->height / 2;
         if ('glider' == $seed) {
             $formation = [
                 [$centreX, $centreY],
@@ -157,11 +154,17 @@ class BoardEntity
         } else {
             $temp = md5(empty($seed) ? time() : $seed);
 //        TODO::设计一种算法将md5字符串转换为个数随机的位于当前棋盘内的坐标
+            exit("TODO::We need to design an algorithm to randomly generate images in the board.");
             $formation = [];
         }
         $this->initWorld($formation);
     }
 
+    /**
+     * 构建整个棋盘
+     *
+     * @param array $formation
+     */
     private function initWorld(array $formation)
     {
         for ($y = 1; $y <= $this->height; ++$y) {
@@ -178,6 +181,13 @@ class BoardEntity
         }
     }
 
+    /**
+     * 游戏步进1步，生命游戏演化规则核心代码
+     *
+     * 邻居数等于3会让死亡的细胞重生，生存的细胞保持
+     * 邻居数等于2会让细胞保持当前状态
+     * 否则细胞变成死亡状态
+     */
     public function stepOne()
     {
         /** @var \App\Entity\ChessEntity $chess */
@@ -200,8 +210,16 @@ class BoardEntity
                 $chess->toNext();
             }
         }
+        $this->step++;
     }
 
+    /**
+     * 检查邻居存活数量，排除不存在的邻居坐标
+     *
+     * @param \App\Entity\ChessEntity $chess
+     *
+     * @return int
+     */
     private function checkAround(ChessEntity $chess)
     {
         $count = 0;
@@ -230,7 +248,10 @@ class BoardEntity
     }
 
     /**
-     * 将坐标转换为索引.
+     * 将棋盘坐标转换为棋盘真实索引
+     *
+     * @param array $xy
+     * @param int   $w
      *
      * @return float|int|mixed
      */
@@ -239,6 +260,13 @@ class BoardEntity
         return $xy[0] + $xy[1] + $w * $xy[1] - $w - 2;
     }
 
+    /**
+     * 产出器代替直接遍历对象或数组，节省内存开销
+     *
+     * @param array $data
+     *
+     * @return \Generator
+     */
     private function yielded(array $data)
     {
         foreach ($data as $datum) {

@@ -35,7 +35,7 @@ class ChessEntity
 //            return (string) $this->neighbor;
             return '■';
         } else {
-            return '  ';
+            return '　';
 //            return '□';
         }
     }
